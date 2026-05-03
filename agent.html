@@ -305,10 +305,9 @@ async function init() {
 
   const hireBtn = document.getElementById("hireBtn");
   hireBtn.addEventListener("click", () => {
-    const url = "checkout.html?agent_id=" + encodeURIComponent(String(agent.id || "")) +
+    const url = "request.html?id=" + encodeURIComponent(String(agent.id || "")) +
       "&name=" + encodeURIComponent(agent.name || "") +
-      "&price=" + encodeURIComponent(String(agent.price ?? "")) +
-      "&description=" + encodeURIComponent(agent.description || "");
+      "&price=" + encodeURIComponent(String(agent.price ?? ""));
     window.location.href = url;
   });
 

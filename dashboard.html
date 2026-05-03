@@ -224,15 +224,13 @@ body.auth-pending{visibility:hidden;}
     cardsGrid.innerHTML = agents.map((agent) => {
       const a = getAvailabilityStyle(agent.availability);
       const category = escapeHtml(agent.category || "General");
-      const checkoutHref =
-        "checkout.html?agent_id=" +
+      const requestHref =
+        "request.html?id=" +
         encodeURIComponent(String(agent.id ?? "")) +
         "&name=" +
         encodeURIComponent(agent.name ?? "") +
         "&price=" +
-        encodeURIComponent(String(agent.price ?? "")) +
-        "&description=" +
-        encodeURIComponent(agent.description ?? "");
+        encodeURIComponent(String(agent.price ?? ""));
       return `
         <div class="agent-card">
           <div class="card-thumb" style="background:#E6F1FB;">🤖
@@ -250,7 +248,7 @@ body.auth-pending{visibility:hidden;}
               <div><div class="card-price">$${escapeHtml(agent.price ?? "")} <span class="card-price-sub">/ hour</span></div></div>
               <div class="card-actions">
                 <a class="view-agent-btn" href="agent.html?id=${encodeURIComponent(String(agent.id ?? ""))}">View Agent</a>
-                <a class="rent-btn" href="${checkoutHref}">Hire Agent</a>
+                <a class="rent-btn" href="${requestHref}">Hire Agent</a>
               </div>
             </div>
           </div>
