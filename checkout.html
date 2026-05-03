@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMarket - השלם רכישה</title>
+  <style>
+    :root {
+      --brand: #185FA5;
+      --brand-dark: #11497f;
+      --text: #1b1f24;
+      --muted: #5f6b7a;
+      --bg: #f4f8fc;
+      --card: #ffffff;
+      --border: #d8e2ee;
+      --paypal: #ffc439;
+      --paypal-hover: #f0b429;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #edf5ff 0%, var(--bg) 50%, #eef3f9 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 35px rgba(20, 62, 103, 0.12);
+      padding: 24px;
+    }
+
+    .brand {
+      margin: 0 0 6px;
+      color: var(--brand);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.4;
+    }
+
+    .summary {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      background: #fafcfe;
+    }
+
+    .summary-row {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .summary-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .summary-label {
+      font-weight: 600;
+      color: var(--brand);
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+
+    .summary-value {
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .price-highlight {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .btn-paypal {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--paypal);
+      color: #1a1a1a;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: background-color 0.16s, transform 0.06s;
+      margin-bottom: 12px;
+    }
+
+    .btn-paypal:hover {
+      background: var(--paypal-hover);
+    }
+
+    .btn-paypal:active {
+      transform: translateY(1px);
+    }
+
+    .btn-back {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--brand);
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.16s, border-color 0.16s;
+    }
+
+    .btn-back:hover {
+      background: rgba(24, 95, 165, 0.06);
+      border-color: var(--brand);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .brand {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-label="תשלום AgentMarket">
+    <h1 class="brand">השלם רכישה</h1>
+    <p class="subtitle">בדוק את פרטי הסוכן לפני התשלום.</p>
+
+    <div class="summary" id="agentSummary">
+      <div class="summary-row">
+        <div class="summary-label">שם הסוכן</div>
+        <div class="summary-value" id="agentName">—</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">תיאור</div>
+        <div class="summary-value" id="agentDescription">—</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">מחיר</div>
+        <div class="summary-value price-highlight" id="agentPrice">—</div>
+      </div>
+    </div>
+
+    <button id="paypalBtn" class="btn-paypal" type="button">שלם עם PayPal</button>
+    <a class="btn-back" href="dashboard.html">חזור</a>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+    if (!window.AgentMarketSupabase) {
+      window.AgentMarketSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    const supabaseClient = window.AgentMarketSupabase;
+
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        agentId: params.get("agent_id") || params.get("id") || "",
+        name: params.get("name") || "",
+        price: params.get("price") || "",
+        description: params.get("description") || ""
+      };
+    }
+
+    function decodeText(value) {
+      if (!value) return "";
+      try {
+        return decodeURIComponent(value.replace(/\+/g, " "));
+      } catch {
+        return value;
+      }
+    }
+
+    function parseAmount(priceStr) {
+      const cleaned = String(priceStr || "").replace(/[^\d.]/g, "");
+      const n = parseFloat(cleaned);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    }
+
+    (function init() {
+      const { agentId, name, price, description } = getQueryParams();
+      const decodedName = decodeText(name);
+      const decodedDesc = decodeText(description);
+      const amount = parseAmount(price);
+
+      document.getElementById("agentName").textContent = decodedName || "לא צוין";
+      document.getElementById("agentDescription").textContent = decodedDesc || "—";
+      document.getElementById("agentPrice").textContent =
+        amount !== null ? "$" + amount.toFixed(2) : (price ? decodeText(price) : "לא צוין");
+
+      document.getElementById("paypalBtn").addEventListener("click", async function () {
+        if (amount === null) {
+          alert("מחיר לא תקין. חזור ובחר סוכן מחדש.");
+          return;
+        }
+        if (!agentId) {
+          alert("חסר מזהה סוכן. חזור ובחר סוכן מחדש.");
+          return;
+        }
+        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !authData?.user) {
+          window.location.href = "login.html";
+          return;
+        }
+        const { error: orderError } = await supabaseClient.from("orders").insert({
+          agent_id: agentId,
+          buyer_id: authData.user.id,
+          amount: amount,
+          status: "pending",
+          created_at: new Date().toISOString()
+        });
+        if (orderError) {
+          alert("שגיאה בשמירת הזמנה: " + orderError.message);
+          return;
+        }
+        const { data: agentData } = await supabaseClient
+          .from("Agents")
+          .select("user_id,name")
+          .eq("id", agentId)
+          .maybeSingle();
+        if (agentData?.user_id) {
+          await supabaseClient.from("notifications").insert({
+            user_id: agentData.user_id,
+            title: "New Order!",
+            message: "Someone hired your agent: " + (agentData.name || decodedName || "Agent")
+          });
+        }
+        const url =
+          "https://www.paypal.com/paypalme/AgentMarketw/" + encodeURIComponent(String(amount));
+        window.open(url, "_blank", "noopener,noreferrer");
+      });
+    })();
+  </script>
+  <script src="navbar.js"></script>
+</body>
+</html>

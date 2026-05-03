@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentMarket — User Profile v2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F0;color:#1a1a1a;}
+.cover{height:150px;background:#1a1a2e;position:relative;overflow:hidden;}
+.cover svg{position:absolute;inset:0;width:100%;height:100%;opacity:0.15;}
+.profile-bar{background:#fff;border-bottom:1px solid #e8e8e8;padding:0 28px 16px;position:relative;}
+.av-wrap{position:absolute;top:-44px;left:28px;}
+.av-big{width:88px;height:88px;border-radius:50%;background:#B5D4F4;border:4px solid #fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:#0C447C;}
+.verified{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;background:#185FA5;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;}
+.top-actions{display:flex;justify-content:flex-end;padding-top:10px;gap:8px;}
+.btn-ghost{font-size:12px;padding:6px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;}
+.btn-blue{font-size:12px;padding:6px 14px;border:none;border-radius:8px;background:#185FA5;color:white;cursor:pointer;}
+.btn-green{font-size:12px;padding:6px 14px;border:none;border-radius:8px;background:#3B6D11;color:white;cursor:pointer;}
+.name-row{display:flex;align-items:center;gap:8px;margin-top:50px;}
+.uname{font-size:20px;font-weight:600;}
+.badge-pill{font-size:10px;padding:2px 8px;border-radius:999px;}
+.open-badge{background:#EAF3DE;color:#3B6D11;}
+.pro-badge{background:#E6F1FB;color:#185FA5;}
+.title-row{font-size:13px;color:#555;margin-top:3px;}
+.meta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:12px;color:#666;}
+.stats-strip{display:flex;gap:0;margin-top:14px;padding-top:14px;border-top:1px solid #eee;}
+.stat-block{flex:1;text-align:center;border-right:1px solid #eee;}
+.stat-block:last-child{border-right:none;}
+.stat-n{font-size:18px;font-weight:600;}
+.stat-l{font-size:11px;color:#666;margin-top:2px;}
+.tabs-bar{background:#fff;border-bottom:1px solid #e8e8e8;padding:0 28px;display:flex;}
+.tab{font-size:13px;padding:12px 18px;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600;}
+.body{display:grid;grid-template-columns:300px 1fr;gap:18px;padding:18px 28px;max-width:1100px;}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:16px;margin-bottom:14px;}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-link{font-size:12px;color:#185FA5;cursor:pointer;}
+.info-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f5f5f5;}
+.info-row:last-child{border-bottom:none;}
+.il{color:#666;}
+.iv{font-weight:600;}
+.skill-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;margin:2px;background:#f5f5f5;color:#555;border:1px solid #eee;}
+.agent-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5;}
+.agent-row:last-child{border-bottom:none;padding-bottom:0;}
+.ag-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#E6F1FB;}
+.ag-name{font-size:13px;font-weight:600;}
+.ag-desc{font-size:11px;color:#666;margin-top:1px;}
+.ag-right{margin-left:auto;text-align:right;}
+.ag-price{font-size:12px;font-weight:600;color:#185FA5;}
+.avdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;}
+.muted{font-size:12px;color:#666;}
+@media (max-width: 900px){
+  .body{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="cover">
+  <svg viewBox="0 0 1100 150" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect fill="#378ADD" x="0" y="0" width="80" height="80" rx="4"/>
+    <rect fill="#378ADD" x="200" y="-10" width="100" height="100" rx="4"/>
+    <rect fill="#378ADD" x="430" y="10" width="90" height="90" rx="4"/>
+    <rect fill="#378ADD" x="640" y="0" width="120" height="120" rx="4"/>
+    <rect fill="#378ADD" x="910" y="10" width="55" height="55" rx="4"/>
+  </svg>
+</div>
+
+<div class="profile-bar">
+  <div class="av-wrap">
+    <div id="profileAvatar" class="av-big">U</div>
+    <div class="verified">✓</div>
+  </div>
+  <div class="top-actions">
+    <button class="btn-ghost" type="button">Share profile</button>
+    <button class="btn-ghost" type="button">Edit profile</button>
+    <button class="btn-ghost" type="button" onclick="window.location.href='orders.html'">My Orders</button>
+    <button class="btn-green" type="button" onclick="window.location.href='add-agent.html'">+ Add agent</button>
+    <button class="btn-blue" type="button">Open to hire</button>
+  </div>
+  <div class="name-row">
+    <span id="profileName" class="uname">User</span>
+    <span class="badge-pill pro-badge">Pro</span>
+    <span class="badge-pill open-badge">Open to hire</span>
+  </div>
+  <div class="title-row">AgentMarket Creator</div>
+  <div class="meta-row">
+    <span>✉️ <span id="profileEmail">—</span></span>
+    <span>🕐 Active now</span>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-block"><div id="agentsCount" class="stat-n">0</div><div class="stat-l">Agents</div></div>
+    <div class="stat-block"><div class="stat-n">—</div><div class="stat-l">Deals</div></div>
+    <div class="stat-block"><div class="stat-n">—</div><div class="stat-l">Avg rating</div></div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tab active">Overview</div>
+  <div class="tab">My Agents</div>
+</div>
+
+<div class="body">
+  <div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">About</span></div>
+      <div class="muted">זהו פרופיל אישי המחובר לחשבון שלך ב-AgentMarket.</div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Details</span></div>
+      <div class="info-row"><span class="il">Email</span><span id="detailsEmail" class="iv">—</span></div>
+      <div class="info-row"><span class="il">Status</span><span class="iv">Verified user</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Capabilities</span></div>
+      <span class="skill-tag">Finance</span>
+      <span class="skill-tag">UI/Design</span>
+      <span class="skill-tag">Marketing</span>
+      <span class="skill-tag">Development</span>
+      <span class="skill-tag">Data</span>
+      <span class="skill-tag">Writing</span>
+      <span class="skill-tag">Automation</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">My Agents</span><span class="card-link" onclick="window.location.href='add-agent.html'">Add New</span></div>
+      <div id="myAgentsList">
+        <div class="muted">Loading agents...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+  if (!window.AgentMarketSupabase) {
+    window.AgentMarketSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  const supabaseClient = window.AgentMarketSupabase;
+
+  const profileNameEl = document.getElementById("profileName");
+  const profileEmailEl = document.getElementById("profileEmail");
+  const detailsEmailEl = document.getElementById("detailsEmail");
+  const profileAvatarEl = document.getElementById("profileAvatar");
+  const myAgentsListEl = document.getElementById("myAgentsList");
+  const agentsCountEl = document.getElementById("agentsCount");
+
+  function displayName(user) {
+    return user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "User";
+  }
+
+  function availabilityColor(availability) {
+    const value = String(availability || "").toLowerCase();
+    if (value.includes("busy")) return { dot: "#E24B4A", text: "#A32D2D" };
+    if (value.includes("24h")) return { dot: "#BA7517", text: "#8a5d17" };
+    return { dot: "#639922", text: "#3B6D11" };
+  }
+
+  function renderAgents(agents) {
+    agentsCountEl.textContent = String(agents.length);
+    if (!agents.length) {
+      myAgentsListEl.innerHTML = '<div class="muted">No agents yet</div>';
+      return;
+    }
+
+    myAgentsListEl.innerHTML = agents.map((agent) => {
+      const c = availabilityColor(agent.availability);
+      return `
+        <a href="agent.html?id=${agent.id}" style="text-decoration:none; color:inherit;">
+          <div class="agent-row">
+            <div class="ag-icon">🤖</div>
+            <div>
+              <div class="ag-name">${agent.name || "Untitled agent"}</div>
+              <div class="ag-desc">${agent.description || ""}</div>
+            </div>
+            <div class="ag-right">
+              <div class="ag-price">$${agent.price ?? ""} / hour</div>
+              <div style="font-size:11px;margin-top:3px;">
+                <span class="avdot" style="background:${c.dot};"></span>
+                <span style="color:${c.text};">${agent.availability || "Available now"}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join("");
+  }
+
+  async function initProfile() {
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error || !data?.user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    const user = data.user;
+    const name = displayName(user);
+    const email = user.email || "—";
+    profileNameEl.textContent = name;
+    profileEmailEl.textContent = email;
+    detailsEmailEl.textContent = email;
+    profileAvatarEl.textContent = name.charAt(0).toUpperCase();
+
+    const { data: agents, error: agentsError } = await supabaseClient
+      .from("Agents")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (agentsError) {
+      myAgentsListEl.innerHTML = '<div class="muted">Failed to load agents</div>';
+      return;
+    }
+
+    renderAgents(agents || []);
+  }
+
+  initProfile();
+</script>
+<script src="navbar.js"></script>
+</body>
+</html>

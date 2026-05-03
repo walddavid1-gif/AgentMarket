@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMarket - פרסום סוכן</title>
+  <style>
+    :root {
+      --brand: #185FA5;
+      --brand-dark: #11497f;
+      --text: #1b1f24;
+      --muted: #5f6b7a;
+      --bg: #f4f8fc;
+      --card: #ffffff;
+      --border: #d8e2ee;
+      --success-bg: #e7f6ee;
+      --success-text: #1e7a43;
+      --error-bg: #fbe9ea;
+      --error-text: #ab2f3a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #edf5ff 0%, var(--bg) 50%, #eef3f9 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 35px rgba(20, 62, 103, 0.12);
+      padding: 24px;
+    }
+
+    .brand {
+      margin: 0 0 6px;
+      color: var(--brand);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.4;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      background-color: #fff;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.16);
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--brand);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.16s, transform 0.06s;
+    }
+
+    .btn:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .message.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid #bfe6cf;
+    }
+
+    .message.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #f4c2c7;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .brand {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-label="טופס פרסום סוכן AgentMarket">
+    <h1 class="brand">AgentMarket</h1>
+    <p class="subtitle">הוסף סוכן חדש למרקט והתחל לקבל פניות.</p>
+
+    <form id="agentForm" method="post" action="#" novalidate>
+      <div class="field">
+        <label for="name">שם הסוכן</label>
+        <input id="name" name="name" type="text" required />
+      </div>
+
+      <div class="field">
+        <label for="description">תיאור קצר</label>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="category">קטגוריה</label>
+        <select id="category" name="category" required>
+          <option value="">בחר קטגוריה</option>
+          <option value="Finance">Finance</option>
+          <option value="UI/Design">UI/Design</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Development">Development</option>
+          <option value="Data">Data</option>
+          <option value="Writing">Writing</option>
+          <option value="Automation">Automation</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="price">מחיר לשעה ($)</label>
+        <input id="price" name="price" type="number" min="1" step="1" required />
+      </div>
+
+      <div class="field">
+        <label for="availability">סטטוס זמינות</label>
+        <select id="availability" name="availability" required>
+          <option value="">בחר זמינות</option>
+          <option value="Available now">Available now</option>
+          <option value="Within 24h">Within 24h</option>
+          <option value="Busy">Busy</option>
+        </select>
+      </div>
+
+      <button id="submitBtn" class="btn" type="submit">פרסם סוכן</button>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+    const AGENTS_TABLE = "Agents";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const form = document.getElementById("agentForm");
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function showMessage(type, text) {
+      messageEl.className = "message " + type;
+      messageEl.textContent = text;
+    }
+
+    function clearMessage() {
+      messageEl.className = "message";
+      messageEl.textContent = "";
+    }
+
+    async function requireAuth() {
+      console.log("[add-agent] requireAuth: start");
+      const { data, error } = await supabaseClient.auth.getUser();
+      console.log("[add-agent] requireAuth: result", { hasUser: !!data?.user, error });
+      if (error || !data?.user) {
+        console.log("[add-agent] requireAuth: redirecting to login");
+        window.location.replace("login.html");
+        return null;
+      }
+      console.log("[add-agent] requireAuth: authenticated user", data.user.id);
+      return data.user;
+    }
+
+    window.addEventListener("load", async () => {
+      await requireAuth();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      console.log("[add-agent] submit: start");
+      clearMessage();
+
+      try {
+        console.log("[add-agent] submit: checking auth");
+        const user = await requireAuth();
+        if (!user) {
+          console.log("[add-agent] submit: stopped, no user");
+          return;
+        }
+
+        console.log("[add-agent] submit: reading form values");
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const category = document.getElementById("category").value;
+        const price = Number(document.getElementById("price").value);
+        const availability = document.getElementById("availability").value;
+        console.log("[add-agent] submit: form values", { name, description, category, price, availability });
+
+        if (!name || !description || !category || !price || !availability) {
+          console.log("[add-agent] submit: validation failed");
+          showMessage("error", "נא למלא את כל השדות.");
+          return;
+        }
+
+        const payload = {
+          user_id: user.id,
+          name,
+          description,
+          category,
+          price,
+          availability,
+          created_at: new Date().toISOString()
+        };
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "מפרסם...";
+        console.log("[add-agent] submit: inserting into table", AGENTS_TABLE, payload);
+
+        const insertResult = await supabaseClient.from(AGENTS_TABLE).insert(payload).select();
+        console.log("[add-agent] submit: insert result (full)", insertResult);
+
+        const { error } = insertResult;
+
+        if (error) {
+          console.error("[add-agent] submit: insert error", error);
+          showMessage("error", "שגיאה בפרסום הסוכן: " + (error.message || JSON.stringify(error)));
+          return;
+        }
+
+        console.log("[add-agent] submit: insert success");
+        showMessage("success", "הסוכן פורסם בהצלחה!");
+        setTimeout(() => {
+          console.log("[add-agent] submit: redirecting to dashboard");
+          window.location.href = "dashboard.html";
+        }, 1000);
+      } catch (err) {
+        console.error("[add-agent] submit: unexpected error", err);
+        showMessage("error", "שגיאה בפרסום הסוכן: " + (err?.message || String(err)));
+      } finally {
+        console.log("[add-agent] submit: finally");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "פרסם סוכן";
+      }
+    });
+  </script>
+  <script src="navbar.js"></script>
+</body>
+</html>

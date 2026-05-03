@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentMarket — Agent</title>
+<style>
+:root{
+  --bg:#f7f6f2;--white:#fff;--navy:#0d2340;--blue:#1c4f8a;--accent:#c9a84c;
+  --border:#e0dbd0;--muted:#7a7469;--green:#1a6b3c;--red:#a32d2d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--navy)}
+.wrap{max-width:1100px;margin:0 auto;padding:84px 20px 28px}
+.hero{display:grid;grid-template-columns:1fr 320px;gap:18px}
+.panel{background:var(--white);border:1px solid var(--border);padding:22px}
+.eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.name{font-size:34px;font-weight:700;line-height:1.1;margin-bottom:8px}
+.desc{color:var(--muted);line-height:1.65;margin-bottom:16px}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border)}
+.meta .cell{padding:12px;border-right:1px solid var(--border)}
+.meta .cell:last-child{border-right:none}
+.k{font-size:11px;color:var(--muted);text-transform:uppercase}
+.v{font-size:17px;font-weight:700}
+.price{font-size:32px;font-weight:700;margin:8px 0}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.row:last-child{border-bottom:none}
+.hire-btn{width:100%;padding:14px;background:var(--accent);border:none;color:var(--navy);font-weight:700;cursor:pointer;margin-top:14px}
+.hire-btn:hover{opacity:.9}
+.status{margin-top:10px;font-size:13px}
+.status.ok{color:var(--green)} .status.bad{color:var(--red)}
+.section{margin-top:22px}
+.section h2{font-size:24px;margin-bottom:6px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.portfolio-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.counter{font-size:14px;color:var(--blue);font-weight:600}
+.add-btn{padding:9px 14px;border:1px solid var(--border);background:#fff;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:#fff;border:1px solid var(--border);padding:12px}
+.badge{display:inline-block;font-size:10px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);margin-bottom:8px}
+.badge.public{color:var(--green);background:#edf7f1}
+.badge.private{color:var(--muted);background:#f5f5f5}
+.ct{font-weight:700;font-size:14px;margin-bottom:4px}
+.cd{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.date{font-size:11px;color:var(--muted)}
+.msg{margin-top:12px;font-size:13px;color:var(--muted)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:10020}
+.modal{width:100%;max-width:420px;background:#fff;padding:18px;border:1px solid var(--border)}
+.modal h3{margin-bottom:10px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;margin-bottom:5px;color:var(--muted)}
+.field input,.field textarea{width:100%;padding:10px;border:1px solid var(--border)}
+.field textarea{min-height:90px;resize:vertical}
+.actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{padding:9px 14px;border:1px solid var(--border);background:#fff;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.reviews-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.reviews-summary{font-size:14px;color:var(--blue);font-weight:600}
+.reviews-list{display:grid;gap:10px}
+.review-card{background:#fff;border:1px solid var(--border);padding:12px}
+.review-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.reviewer{font-weight:700;font-size:13px}
+.stars{color:#c18f1f;font-size:13px;letter-spacing:1px}
+.review-comment{font-size:13px;color:var(--muted);line-height:1.5}
+.review-date{font-size:11px;color:var(--muted);margin-top:8px}
+.review-form{background:#fff;border:1px solid var(--border);padding:14px;margin-top:14px}
+.review-form h3{font-size:16px;margin-bottom:8px}
+.star-picker{display:flex;gap:6px;margin:8px 0 10px}
+.star-btn{border:1px solid var(--border);background:#fff;color:#c18f1f;padding:6px 9px;cursor:pointer}
+.star-btn.active{background:#fff5db;border-color:#c18f1f}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="panel">
+      <div id="agentCategory" class="eyebrow">Category</div>
+      <div id="agentName" class="name">Loading...</div>
+      <div id="agentDescription" class="desc">Loading agent details...</div>
+      <div class="meta">
+        <div class="cell"><div class="k">Price</div><div id="metaPrice" class="v">$0</div></div>
+        <div class="cell"><div class="k">Availability</div><div id="metaAvailability" class="v">—</div></div>
+        <div class="cell"><div class="k">Category</div><div id="metaCategory" class="v">—</div></div>
+      </div>
+      <div id="agentMsg" class="msg"></div>
+    </div>
+    <div class="panel">
+      <div class="k">Starting from</div>
+      <div id="priceBig" class="price">$0</div>
+      <div class="row"><span>Model</span><span>Per hour</span></div>
+      <div class="row"><span>Status</span><span id="statusText">—</span></div>
+      <button id="hireBtn" class="hire-btn" type="button">Hire Agent</button>
+      <div id="statusClass" class="status">Checking availability...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Portfolio</h2>
+    <div class="sub">Selected previous work for this agent.</div>
+    <div class="portfolio-top">
+      <div id="jobsCounter" class="counter">0 jobs completed</div>
+      <button id="addPortfolioBtn" class="add-btn" style="display:none;" type="button">Add to Portfolio</button>
+    </div>
+    <div id="portfolioGrid" class="grid"></div>
+    <div id="portfolioMsg" class="msg"></div>
+  </div>
+
+  <div class="section">
+    <h2>Reviews</h2>
+    <div class="sub">Ratings and feedback from clients.</div>
+    <div class="reviews-top">
+      <div id="reviewsSummary" class="reviews-summary">0.0 average rating • 0 reviews</div>
+    </div>
+    <div id="reviewsList" class="reviews-list"></div>
+    <div id="reviewsMsg" class="msg"></div>
+
+    <form id="reviewForm" class="review-form" style="display:none;" novalidate>
+      <h3>Leave a Review</h3>
+      <div class="k">Rating</div>
+      <div id="starPicker" class="star-picker"></div>
+      <div class="field">
+        <label for="reviewComment">Comment</label>
+        <textarea id="reviewComment" placeholder="Share your experience..."></textarea>
+      </div>
+      <button class="btn primary" type="submit">Submit Review</button>
+    </form>
+  </div>
+</div>
+
+<div id="portfolioModalBg" class="modal-bg">
+  <div class="modal">
+    <h3>Add Portfolio Item</h3>
+    <div class="field">
+      <label for="pTitle">Title</label>
+      <input id="pTitle" type="text" />
+    </div>
+    <div class="field">
+      <label for="pDescription">Description</label>
+      <textarea id="pDescription"></textarea>
+    </div>
+    <div class="field">
+      <label><input id="pPublic" type="checkbox" checked /> Show in portfolio</label>
+    </div>
+    <div class="actions">
+      <button id="cancelPortfolioBtn" class="btn" type="button">Cancel</button>
+      <button id="savePortfolioBtn" class="btn primary" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+if (!window.AgentMarketSupabase) {
+  window.AgentMarketSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+const supabaseClient = window.AgentMarketSupabase;
+
+const qs = new URLSearchParams(window.location.search);
+const agentId = parseInt(new URLSearchParams(window.location.search).get("id"), 10);
+let currentUser = null;
+let currentAgent = null;
+let selectedRating = 0;
+
+function esc(s){return String(s ?? "").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));}
+function fmtDate(iso){ const d = new Date(iso); return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString(); }
+
+function setAgent(agent){
+  currentAgent = agent;
+  document.getElementById("agentName").textContent = agent.name || "Untitled agent";
+  document.getElementById("agentDescription").textContent = agent.description || "No description provided.";
+  document.getElementById("agentCategory").textContent = agent.category || "Category";
+  document.getElementById("metaPrice").textContent = "$" + (agent.price ?? "");
+  document.getElementById("metaAvailability").textContent = agent.availability || "Unknown";
+  document.getElementById("metaCategory").textContent = agent.category || "General";
+  document.getElementById("priceBig").textContent = "$" + (agent.price ?? "");
+  document.getElementById("statusText").textContent = agent.availability || "Unknown";
+  const statusEl = document.getElementById("statusClass");
+  statusEl.textContent = agent.availability || "Unknown";
+  statusEl.className = "status " + (String(agent.availability || "").toLowerCase().includes("busy") ? "bad" : "ok");
+}
+
+function renderPortfolio(items){
+  const grid = document.getElementById("portfolioGrid");
+  if (!items.length) {
+    grid.innerHTML = "";
+    document.getElementById("portfolioMsg").textContent = "No public portfolio items yet.";
+    return;
+  }
+  document.getElementById("portfolioMsg").textContent = "";
+  grid.innerHTML = items.map((it)=>`
+    <div class="card">
+      <div class="badge ${it.is_public ? "public":"private"}">${it.is_public ? "Public":"Private"}</div>
+      <div class="ct">${esc(it.title || "Untitled work")}</div>
+      <div class="cd">${esc(it.description || "")}</div>
+      <div class="date">${fmtDate(it.created_at)}</div>
+    </div>
+  `).join("");
+}
+
+async function loadPortfolio() {
+  const { count, error: countError } = await supabaseClient
+    .from("agent_portfolio")
+    .select("*", { count: "exact", head: true })
+    .eq("agent_id", agentId);
+  if (!countError) {
+    document.getElementById("jobsCounter").textContent = String(count || 0) + " jobs completed";
+  }
+
+  const { data, error } = await supabaseClient
+    .from("agent_portfolio")
+    .select("*")
+    .eq("agent_id", agentId)
+    .eq("is_public", true)
+    .order("created_at", { ascending: false });
+  if (error) {
+    document.getElementById("portfolioMsg").textContent = "Failed to load portfolio.";
+    return;
+  }
+  renderPortfolio(data || []);
+}
+
+function buildStars(rating) {
+  const r = Math.max(1, Math.min(5, Number(rating || 0)));
+  return "★".repeat(r) + "☆".repeat(5 - r);
+}
+
+function renderReviewStarsPicker() {
+  const starPickerEl = document.getElementById("starPicker");
+  starPickerEl.innerHTML = "";
+  for (let i = 1; i <= 5; i += 1) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "star-btn" + (i <= selectedRating ? " active" : "");
+    b.textContent = i + "★";
+    b.addEventListener("click", () => {
+      selectedRating = i;
+      renderReviewStarsPicker();
+    });
+    starPickerEl.appendChild(b);
+  }
+}
+
+function renderReviews(reviews) {
+  const count = reviews.length;
+  const avg = count ? (reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / count) : 0;
+  document.getElementById("reviewsSummary").textContent = avg.toFixed(1) + " average rating • " + count + " reviews";
+  if (!count) {
+    document.getElementById("reviewsList").innerHTML = "";
+    document.getElementById("reviewsMsg").textContent = "No reviews yet.";
+    return;
+  }
+  document.getElementById("reviewsMsg").textContent = "";
+  document.getElementById("reviewsList").innerHTML = reviews.map((r) => `
+    <div class="review-card">
+      <div class="review-head">
+        <div class="reviewer">${esc(r.reviewer_name || "Anonymous")}</div>
+        <div class="stars">${buildStars(r.rating)}</div>
+      </div>
+      <div class="review-comment">${esc(r.comment || "")}</div>
+      <div class="review-date">${fmtDate(r.created_at)}</div>
+    </div>
+  `).join("");
+}
+
+async function loadReviews() {
+  const { data, error } = await supabaseClient
+    .from("reviews")
+    .select("*")
+    .eq("agent_id", agentId)
+    .order("created_at", { ascending: false });
+  if (error) {
+    document.getElementById("reviewsMsg").textContent = "Failed to load reviews.";
+    return;
+  }
+  renderReviews(data || []);
+}
+
+async function init() {
+  console.log("=== PAGE LOADED ===");
+  console.log("1. getting user...");
+  if (Number.isNaN(agentId)) {
+    document.getElementById("agentMsg").textContent = "Missing agent id in URL.";
+    return;
+  }
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const user = session?.user ?? null;
+  currentUser = user;
+  console.log("2. user result:", user, null);
+
+  const { data: agent, error } = await supabaseClient
+    .from("Agents")
+    .select("*")
+    .eq("id", agentId)
+    .maybeSingle();
+  if (error || !agent) {
+    document.getElementById("agentMsg").textContent = "Failed to load this agent.";
+    return;
+  }
+  console.log("3. agent loaded:", agent);
+  setAgent(agent);
+
+  const hireBtn = document.getElementById("hireBtn");
+  hireBtn.addEventListener("click", () => {
+    const url = "checkout.html?agent_id=" + encodeURIComponent(String(agent.id || "")) +
+      "&name=" + encodeURIComponent(agent.name || "") +
+      "&price=" + encodeURIComponent(String(agent.price ?? "")) +
+      "&description=" + encodeURIComponent(agent.description || "");
+    window.location.href = url;
+  });
+
+  console.log("4. checking reviews section...");
+  const agentOwnerId = agent.user_id;
+  console.log("4a. currentUser:", currentUser);
+  console.log("4b. agentOwnerId:", agentOwnerId);
+
+  if (currentUser && String(currentUser.id) === String(agentOwnerId)) {
+    document.getElementById("addPortfolioBtn").style.display = "inline-block";
+    document.getElementById("reviewForm").style.display = "none";
+  } else if (currentUser) {
+    console.log("=== REVIEW CHECK START ===");
+    console.log("agentId:", agentId);
+    console.log("user.id:", currentUser.id);
+    const { data: completedOrders, error: ordersError } = await supabaseClient
+      .from("orders")
+      .select("id")
+      .eq("agent_id", agentId)
+      .eq("buyer_id", currentUser.id)
+      .eq("status", "completed");
+    console.log("orders query result:", completedOrders, ordersError);
+    console.log("has completed order:", completedOrders && completedOrders.length > 0);
+
+    if (!ordersError && completedOrders && completedOrders.length > 0) {
+      document.getElementById("reviewForm").style.display = "block";
+      renderReviewStarsPicker();
+    } else {
+      document.getElementById("reviewForm").style.display = "none";
+      document.getElementById("reviewsMsg").textContent = "Purchase this agent to leave a review";
+    }
+  }
+
+  await loadPortfolio();
+  await loadReviews();
+}
+
+document.getElementById("addPortfolioBtn").addEventListener("click", () => {
+  document.getElementById("portfolioModalBg").style.display = "flex";
+});
+document.getElementById("cancelPortfolioBtn").addEventListener("click", () => {
+  document.getElementById("portfolioModalBg").style.display = "none";
+});
+document.getElementById("savePortfolioBtn").addEventListener("click", async () => {
+  if (!currentAgent || !currentUser || String(currentUser.id) !== String(currentAgent.user_id)) return;
+  const title = document.getElementById("pTitle").value.trim();
+  const description = document.getElementById("pDescription").value.trim();
+  const isPublic = document.getElementById("pPublic").checked;
+  if (!title) return;
+  const { error } = await supabaseClient.from("agent_portfolio").insert({
+    agent_id: currentAgent.id,
+    title,
+    description,
+    created_at: new Date().toISOString(),
+    is_public: isPublic
+  });
+  if (error) {
+    document.getElementById("portfolioMsg").textContent = "Failed to save portfolio item: " + error.message;
+    return;
+  }
+  document.getElementById("portfolioModalBg").style.display = "none";
+  document.getElementById("pTitle").value = "";
+  document.getElementById("pDescription").value = "";
+  document.getElementById("pPublic").checked = true;
+  await loadPortfolio();
+});
+
+document.getElementById("reviewForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!currentUser || !currentAgent) return;
+  if (!selectedRating) {
+    document.getElementById("reviewsMsg").textContent = "Please select a rating between 1 and 5.";
+    return;
+  }
+  const comment = document.getElementById("reviewComment").value.trim();
+  const reviewerName =
+    currentUser.user_metadata?.full_name ||
+    currentUser.user_metadata?.name ||
+    currentUser.email ||
+    "Anonymous";
+  const { error } = await supabaseClient.from("reviews").insert({
+    agent_id: currentAgent.id,
+    user_id: currentUser.id,
+    rating: selectedRating,
+    comment,
+    created_at: new Date().toISOString(),
+    reviewer_name: reviewerName
+  });
+  if (error) {
+    document.getElementById("reviewsMsg").textContent = "Failed to submit review: " + error.message;
+    return;
+  }
+  selectedRating = 0;
+  document.getElementById("reviewComment").value = "";
+  renderReviewStarsPicker();
+  const agentOwnerId = currentAgent.user_id;
+  if (agentOwnerId) {
+    await supabaseClient.from("notifications").insert({
+      user_id: agentOwnerId,
+      title: "New Review!",
+      message: "Someone left a review on your agent: " + (currentAgent.name || "Agent")
+    });
+  }
+  document.getElementById("reviewsMsg").textContent = "Review submitted.";
+  await loadReviews();
+});
+
+window.addEventListener("load", init);
+</script>
+<script src="navbar.js"></script>
+</body>
+</html>

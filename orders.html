@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMarket - Orders</title>
+  <style>
+    :root {
+      --brand: #185FA5;
+      --bg: #f5f8fc;
+      --card: #ffffff;
+      --border: #d8e2ee;
+      --text: #1b1f24;
+      --muted: #5f6b7a;
+      --pending-bg: #fff4e6;
+      --pending-text: #b26a00;
+      --completed-bg: #e8f7ee;
+      --completed-text: #1e7a43;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #edf5ff 0%, var(--bg) 50%, #eef3f9 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 86px 16px 24px;
+    }
+
+    .title {
+      font-size: 1.9rem;
+      color: var(--brand);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 18px;
+      font-size: 0.97rem;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      box-shadow: 0 6px 18px rgba(20, 62, 103, 0.06);
+    }
+
+    .left {
+      min-width: 220px;
+      flex: 1;
+    }
+
+    .agent-name {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 5px 10px;
+      text-transform: capitalize;
+    }
+
+    .status.pending {
+      background: var(--pending-bg);
+      color: var(--pending-text);
+      border: 1px solid #ffd8a8;
+    }
+
+    .status.completed {
+      background: var(--completed-bg);
+      color: var(--completed-text);
+      border: 1px solid #bfe7cf;
+    }
+
+    .status.other {
+      background: #eef2f7;
+      color: #526070;
+      border: 1px solid #d7deea;
+    }
+
+    .btn {
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .empty {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="title">My Orders</h1>
+    <p class="subtitle">Track your purchases and open each agent page.</p>
+    <div id="ordersList" class="list">
+      <div class="empty">Loading orders...</div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+    if (!window.AgentMarketSupabase) {
+      window.AgentMarketSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    const supabaseClient = window.AgentMarketSupabase;
+    const listEl = document.getElementById("ordersList");
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function statusClass(status) {
+      if (status === "pending") return "pending";
+      if (status === "completed") return "completed";
+      return "other";
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderOrders(orders) {
+      if (!orders || orders.length === 0) {
+        listEl.innerHTML = '<div class="empty">No orders yet</div>';
+        return;
+      }
+
+      listEl.innerHTML = orders.map((order) => {
+        const agent = order.Agents || {};
+        const name = escapeHtml(agent.name || "Unknown Agent");
+        const amount = escapeHtml(order.amount ?? "");
+        const date = escapeHtml(formatDate(order.created_at));
+        const status = String(order.status || "pending").toLowerCase();
+        const agentId = encodeURIComponent(String(order.agent_id ?? ""));
+
+        return `
+          <article class="card">
+            <div class="left">
+              <div class="agent-name">${name}</div>
+              <div class="meta">$${amount} · ${date}</div>
+            </div>
+            <div class="right">
+              <span class="status ${statusClass(status)}">${escapeHtml(status)}</span>
+              <a class="btn" href="agent.html?id=${agentId}">View Agent</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadOrders(user) {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select("*, Agents(name, description)")
+        .eq("buyer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        listEl.innerHTML = '<div class="empty">Failed to load orders</div>';
+        return;
+      }
+      renderOrders(data || []);
+    }
+
+    async function guardAndLoad() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const user = session?.user ?? null;
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+      await loadOrders(user);
+    }
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        window.location.replace("login.html");
+      }
+    });
+
+    window.addEventListener("load", guardAndLoad);
+  </script>
+  <script src="navbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentMarket — Marketplace v2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F0;color:#1a1a1a;}
+body.auth-pending{visibility:hidden;}
+.nav{background:#fff;border-bottom:1px solid #e8e8e8;padding:10px 28px;display:flex;align-items:center;gap:16px;}
+.logo{font-size:17px;font-weight:600;color:#185FA5;white-space:nowrap;}
+.logo span{color:#1a1a1a;}
+.nav-links{display:flex;gap:2px;}
+.nl{font-size:13px;padding:6px 12px;border-radius:8px;color:#666;cursor:pointer;}
+.nl.active{background:#E6F1FB;color:#185FA5;font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.post-agent-btn{font-size:12px;padding:7px 16px;border:none;border-radius:8px;background:#185FA5;color:white;cursor:pointer;}
+.nav-av{width:30px;height:30px;border-radius:50%;background:#B5D4F4;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0C447C;}
+.hero{background:#fff;border-bottom:1px solid #e8e8e8;padding:28px 28px 20px;}
+.hero-title{font-size:22px;font-weight:600;margin-bottom:4px;}
+.hero-sub{font-size:14px;color:#555;margin-bottom:18px;}
+.search-bar{display:flex;max-width:640px;border:2px solid #185FA5;border-radius:12px;overflow:hidden;background:#fff;}
+.search-bar input{flex:1;padding:12px 16px;border:none;font-size:14px;outline:none;}
+.search-bar button{padding:10px 22px;background:#185FA5;color:white;border:none;font-size:13px;cursor:pointer;font-weight:600;}
+.cat-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.cat-pill{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 14px;border:1px solid #e8e8e8;border-radius:999px;background:#fff;color:#666;cursor:pointer;}
+.cat-pill.active{background:#185FA5;color:white;border-color:#185FA5;}
+.body{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:20px 28px;}
+.filter-section{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:14px;margin-bottom:10px;}
+.fs-title{font-size:12px;font-weight:600;margin-bottom:10px;}
+.filter-opt{display:flex;align-items:center;justify-content:space-between;padding:4px 0;cursor:pointer;}
+.filter-label{font-size:13px;color:#555;}
+.filter-check{width:16px;height:16px;border:1px solid #ccc;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.filter-check.on{background:#185FA5;border-color:#185FA5;color:white;}
+.price-row{display:flex;gap:8px;margin-top:4px;}
+.price-input{flex:1;padding:6px 8px;border:1px solid #e8e8e8;border-radius:8px;font-size:12px;background:#f5f5f5;text-align:center;}
+.clear-filters{font-size:12px;color:#185FA5;cursor:pointer;text-align:center;padding:6px 0;display:block;}
+.results{display:flex;flex-direction:column;gap:14px;}
+.results-header{display:flex;align-items:center;justify-content:space-between;}
+.results-count{font-size:13px;color:#666;}
+.sort-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;}
+.sort-select{padding:6px 10px;border:1px solid #e8e8e8;border-radius:8px;font-size:12px;background:#fff;cursor:pointer;}
+.view-toggle{display:flex;gap:2px;}
+.vt-btn{width:30px;height:30px;border:1px solid #e8e8e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:#fff;color:#666;}
+.vt-btn.on{background:#f5f5f5;}
+.featured-banner{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.fb-icon{font-size:22px;}
+.fb-text{font-size:13px;color:#555;flex:1;line-height:1.4;}
+.fb-btn{font-size:12px;padding:6px 14px;border:1px solid #185FA5;border-radius:8px;color:#185FA5;background:none;cursor:pointer;}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.agent-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;overflow:hidden;cursor:pointer;}
+.card-thumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:36px;position:relative;}
+.card-badge{position:absolute;top:8px;left:8px;font-size:10px;padding:2px 8px;border-radius:999px;}
+.card-avail{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:999px;background:#fff;}
+.avdot{width:6px;height:6px;border-radius:50%;}
+.card-body{padding:12px;}
+.card-agent-name{font-size:14px;font-weight:600;margin-bottom:2px;}
+.card-owner{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.owner-av{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;}
+.owner-name{font-size:12px;color:#666;}
+.card-desc{font-size:12px;color:#555;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.card-tag{font-size:10px;padding:2px 7px;border-radius:999px;background:#f5f5f5;color:#555;border:1px solid #eee;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f0f0f0;}
+.card-rating{display:flex;align-items:center;gap:4px;font-size:12px;color:#666;}
+.rating-star{color:#BA7517;}
+.card-price{font-size:14px;font-weight:600;}
+.card-price-sub{font-size:10px;color:#888;font-weight:400;}
+.rent-btn{font-size:12px;padding:6px 14px;background:#185FA5;color:white;border:none;border-radius:8px;cursor:pointer;}
+.rent-btn.busy{background:#f5f5f5;color:#888;border:1px solid #e8e8e8;}
+.cards-grid a.rent-btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;}
+.view-agent-btn{font-size:12px;padding:6px 14px;background:#fff;color:#185FA5;border:1px solid #185FA5;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
+.card-actions{display:flex;gap:6px;align-items:center;}
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;}
+.pg-btn{width:32px;height:32px;border:1px solid #e8e8e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;background:#fff;color:#666;}
+.pg-btn.active{background:#185FA5;color:white;border-color:#185FA5;}
+
+.auth-error{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:10000;background:#fdeaea;color:#a32828;border:1px solid #f3b6b6;border-radius:10px;padding:10px 14px;font-size:13px;max-width:90%;text-align:center;display:none;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="auth-pending">
+<div id="authError" class="auth-error"></div>
+
+<div class="hero">
+  <div class="hero-title">Find the right AI agent for the job</div>
+  <div class="hero-sub">Browse 1,200+ agents across finance, marketing, development and more</div>
+  <div class="search-bar">
+    <input placeholder="e.g. stock analysis, UI design, content writing...">
+    <button>Search</button>
+  </div>
+  <div class="cat-row">
+    <div class="cat-pill active">⬤ All agents</div>
+    <div class="cat-pill">📈 Finance</div>
+    <div class="cat-pill">🎨 UI / Design</div>
+    <div class="cat-pill">✍️ Marketing</div>
+    <div class="cat-pill">💻 Development</div>
+    <div class="cat-pill">🔍 Data</div>
+    <div class="cat-pill">📝 Writing</div>
+    <div class="cat-pill">⚙️ Automation</div>
+  </div>
+</div>
+
+<div class="body">
+  <div>
+    <div class="filter-section">
+      <div class="fs-title">Availability</div>
+      <div class="filter-opt"><span class="filter-label">Available now</span><div class="filter-check on">✓</div></div>
+      <div class="filter-opt"><span class="filter-label">Within 24h</span><div class="filter-check"></div></div>
+      <div class="filter-opt"><span class="filter-label">Any</span><div class="filter-check"></div></div>
+    </div>
+    <div class="filter-section">
+      <div class="fs-title">Price range</div>
+      <div class="price-row">
+        <input class="price-input" placeholder="Min $">
+        <input class="price-input" placeholder="Max $">
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="fs-title">Rating</div>
+      <div class="filter-opt"><span class="filter-label">★★★★★ 5.0</span><div class="filter-check on">✓</div></div>
+      <div class="filter-opt"><span class="filter-label">★★★★☆ 4.0+</span><div class="filter-check"></div></div>
+      <div class="filter-opt"><span class="filter-label">Any rating</span><div class="filter-check"></div></div>
+    </div>
+    <div class="filter-section">
+      <div class="fs-title">Pricing model</div>
+      <div class="filter-opt"><span class="filter-label">Per task</span><div class="filter-check on">✓</div></div>
+      <div class="filter-opt"><span class="filter-label">Per hour</span><div class="filter-check"></div></div>
+      <div class="filter-opt"><span class="filter-label">Monthly</span><div class="filter-check"></div></div>
+    </div>
+    <div class="filter-section">
+      <div class="fs-title">Owner status</div>
+      <div class="filter-opt"><span class="filter-label">Open to hire</span><div class="filter-check"></div></div>
+      <div class="filter-opt"><span class="filter-label">Agent-only rental</span><div class="filter-check"></div></div>
+      <div class="filter-opt"><span class="filter-label">Both</span><div class="filter-check on">✓</div></div>
+    </div>
+    <a class="clear-filters">Clear all filters</a>
+  </div>
+
+  <div class="results">
+    <div class="results-header">
+      <div class="results-count"><strong>248</strong> agents found</div>
+      <div class="sort-row">
+        Sort by:
+        <select class="sort-select">
+          <option>Top rated</option>
+          <option>Newest</option>
+          <option>Price: low to high</option>
+          <option>Most deals</option>
+        </select>
+        <div class="view-toggle">
+          <div class="vt-btn on">⊞</div>
+          <div class="vt-btn">☰</div>
+        </div>
+      </div>
+    </div>
+    <div class="featured-banner">
+      <div class="fb-icon">⭐</div>
+      <div class="fb-text"><strong>Featured agents</strong> — Hand-picked by the AgentMarket team for quality, reliability, and outstanding results.</div>
+      <button class="fb-btn">View featured</button>
+    </div>
+    <div id="cardsGrid" class="cards-grid"></div>
+    <div class="pagination">
+      <div class="pg-btn">‹</div>
+      <div class="pg-btn active">1</div>
+      <div class="pg-btn">2</div>
+      <div class="pg-btn">3</div>
+      <div class="pg-btn">···</div>
+      <div class="pg-btn">21</div>
+      <div class="pg-btn">›</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+  const authError = document.getElementById("authError");
+  const cardsGrid = document.getElementById("cardsGrid");
+
+  function extractDisplayName(user) {
+    return (
+      user?.user_metadata?.full_name ||
+      user?.user_metadata?.name ||
+      user?.email ||
+      "משתמש"
+    );
+  }
+
+  function showAuthError(errorDetails) {
+    authError.textContent = "שגיאת auth: " + errorDetails;
+    authError.style.display = "block";
+    document.body.classList.remove("auth-pending");
+  }
+
+  function escapeHtml(text) {
+    return String(text ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function getAvailabilityStyle(availability) {
+    const value = String(availability || "").toLowerCase();
+    if (value.includes("busy")) {
+      return { dot: "#E24B4A", color: "#A32D2D", btnClass: "rent-btn busy", btnText: "Waitlist" };
+    }
+    if (value.includes("24h")) {
+      return { dot: "#BA7517", color: "#8a5d17", btnClass: "rent-btn", btnText: "Rent now" };
+    }
+    return { dot: "#639922", color: "#3B6D11", btnClass: "rent-btn", btnText: "Rent now" };
+  }
+
+  function renderAgents(agents) {
+    if (!agents || agents.length === 0) {
+      cardsGrid.innerHTML = '<div class="featured-banner"><div class="fb-text"><strong>אין סוכנים עדיין</strong></div></div>';
+      return;
+    }
+
+    cardsGrid.innerHTML = agents.map((agent) => {
+      const a = getAvailabilityStyle(agent.availability);
+      const category = escapeHtml(agent.category || "General");
+      const checkoutHref =
+        "checkout.html?agent_id=" +
+        encodeURIComponent(String(agent.id ?? "")) +
+        "&name=" +
+        encodeURIComponent(agent.name ?? "") +
+        "&price=" +
+        encodeURIComponent(String(agent.price ?? "")) +
+        "&description=" +
+        encodeURIComponent(agent.description ?? "");
+      return `
+        <div class="agent-card">
+          <div class="card-thumb" style="background:#E6F1FB;">🤖
+            <div class="card-avail">
+              <div class="avdot" style="background:${a.dot};"></div>
+              <span style="color:${a.color};">${escapeHtml(agent.availability || "Available now")}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-agent-name"><a href="agent.html?id=${encodeURIComponent(String(agent.id ?? ""))}" style="color:inherit;text-decoration:none;">${escapeHtml(agent.name || "Untitled agent")}</a></div>
+            <div class="card-owner"><span class="owner-name">${category}</span></div>
+            <div class="card-desc">${escapeHtml(agent.description || "")}</div>
+            <div class="card-tags"><span class="card-tag">${category}</span></div>
+            <div class="card-footer">
+              <div><div class="card-price">$${escapeHtml(agent.price ?? "")} <span class="card-price-sub">/ hour</span></div></div>
+              <div class="card-actions">
+                <a class="view-agent-btn" href="agent.html?id=${encodeURIComponent(String(agent.id ?? ""))}">View Agent</a>
+                <a class="rent-btn" href="${checkoutHref}">Hire Agent</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function loadAgents(supabase) {
+    console.log("[agents] loading agents from table");
+    const { data, error } = await supabase.from("Agents").select("*").order("created_at", { ascending: false });
+    console.log("[agents] fetch result", { count: data?.length || 0, error });
+    if (error) {
+      showAuthError(error.message || JSON.stringify(error));
+      return;
+    }
+    renderAgents(data || []);
+  }
+
+  async function guardDashboard(supabase) {
+    console.log("[auth] guardDashboard start");
+    console.log("[auth] calling supabase.auth.getUser()");
+    const { data, error } = await supabase.auth.getUser();
+    console.log("[auth] getUser response", { hasUser: !!data?.user, error });
+
+    if (error) {
+      showAuthError(error.message || JSON.stringify(error));
+      return;
+    }
+
+    if (!data?.user) {
+      console.log("[auth] no user, redirecting to login.html");
+      window.location.replace("login.html");
+      return;
+    }
+
+    const displayName = extractDisplayName(data.user);
+    console.log("[auth] user authenticated", { displayName });
+    await loadAgents(supabase);
+    document.body.classList.remove("auth-pending");
+    console.log("[auth] dashboard visible");
+  }
+
+  window.addEventListener("load", async () => {
+    console.log("[auth] window loaded, CSS should be ready");
+    try {
+      console.log("[auth] creating supabase client");
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log("[auth] supabase client created");
+
+      await guardDashboard(supabase);
+    } catch (err) {
+      console.error("[auth] fatal error", err);
+      showAuthError(err?.message || String(err));
+    }
+  });
+</script>
+<script src="navbar.js"></script>
+</body>
+</html>

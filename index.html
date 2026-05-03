@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMarket - הרשמה</title>
+  <style>
+    :root {
+      --brand: #185FA5;
+      --brand-dark: #11497f;
+      --text: #1b1f24;
+      --muted: #5f6b7a;
+      --bg: #f4f8fc;
+      --card: #ffffff;
+      --border: #d8e2ee;
+      --success-bg: #e7f6ee;
+      --success-text: #1e7a43;
+      --error-bg: #fbe9ea;
+      --error-text: #ab2f3a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #edf5ff 0%, var(--bg) 50%, #eef3f9 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 35px rgba(20, 62, 103, 0.12);
+      padding: 24px;
+    }
+
+    .brand {
+      margin: 0 0 6px;
+      color: var(--brand);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.4;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-left: 92px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: var(--brand);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+
+    .toggle-password:hover {
+      background: rgba(24, 95, 165, 0.08);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      background-color: #fff;
+    }
+
+    input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.16);
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--brand);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.16s, transform 0.06s;
+    }
+
+    .btn:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .message.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid #bfe6cf;
+    }
+
+    .message.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #f4c2c7;
+    }
+
+    .message.error a {
+      color: var(--brand);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    .footer-link {
+      margin-top: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .footer-link a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .brand {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-label="טופס הרשמה AgentMarket">
+    <h1 class="brand">AgentMarket</h1>
+    <p class="subtitle">צור חשבון חדש כדי להתחיל להשתמש בפלטפורמה.</p>
+
+    <form id="signupForm" method="post" action="#" novalidate>
+      <div class="field">
+        <label for="fullName">שם מלא</label>
+        <input id="fullName" name="fullName" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label for="email">אימייל</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="password">סיסמה</label>
+        <div class="password-wrap">
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="6" required />
+          <button id="togglePasswordBtn" class="toggle-password" type="button" aria-label="הצג סיסמה">הצג</button>
+        </div>
+      </div>
+
+      <button id="submitBtn" class="btn" type="submit">הירשם</button>
+      <p class="footer-link">יש לך חשבון כבר? <a href="login.html">התחבר</a></p>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    if (window.location.hash.includes("access_token")) {
+      const hash = window.location.hash;
+      if (hash.includes("type=recovery")) {
+        window.location.href = "reset-password.html" + hash;
+      } else {
+        window.location.href = "login.html" + hash;
+      }
+    }
+
+    const SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+    const form = document.getElementById("signupForm");
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+    const passwordInput = document.getElementById("password");
+    const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+
+    function showMessage(type, text) {
+      messageEl.className = "message " + type;
+      messageEl.textContent = text;
+    }
+
+    function showDuplicateEmailMessage() {
+      messageEl.className = "message error";
+      messageEl.innerHTML =
+        'המייל הזה כבר רשום במערכת — <a href="login.html">התחבר במקום</a>';
+    }
+
+    function clearMessage() {
+      messageEl.className = "message";
+      messageEl.textContent = "";
+      messageEl.innerHTML = "";
+    }
+
+    togglePasswordBtn.addEventListener("click", () => {
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+      togglePasswordBtn.textContent = isHidden ? "הסתר" : "הצג";
+      togglePasswordBtn.setAttribute("aria-label", isHidden ? "הסתר סיסמה" : "הצג סיסמה");
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!fullName || !email || !password) {
+        showMessage("error", "נא למלא את כל השדות.");
+        return;
+      }
+
+      if (
+        !SUPABASE_URL ||
+        !SUPABASE_ANON_KEY ||
+        SUPABASE_URL.includes("[הדבק") ||
+        SUPABASE_ANON_KEY.includes("[הדבק")
+      ) {
+        showMessage("error", "יש להזין Project URL ו-anon key תקינים לפני הרשמה.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "נרשם...";
+
+      try {
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName
+            }
+          }
+        });
+
+        if (error) {
+          const errMsg = (error.message || "").toLowerCase();
+          if (
+            errMsg.includes("already registered") ||
+            errMsg.includes("user already registered")
+          ) {
+            showDuplicateEmailMessage();
+            return;
+          }
+          showMessage("error", "שגיאה בהרשמה: " + error.message);
+          return;
+        }
+
+        if (
+          data?.user &&
+          Array.isArray(data.user.identities) &&
+          data.user.identities.length === 0
+        ) {
+          showDuplicateEmailMessage();
+          return;
+        }
+
+        showMessage("success", "נרשמת בהצלחה!");
+        form.reset();
+      } catch (err) {
+        showMessage("error", "אירעה שגיאה בלתי צפויה. נסה שוב.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "הירשם";
+      }
+    });
+  </script>
+</body>
+</html>
