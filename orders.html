@@ -133,6 +133,52 @@
       color: var(--muted);
       text-align: center;
     }
+
+    .req-status {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .req-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 3px 9px;
+    }
+
+    .req-badge.req-pending {
+      background: #fff4e6;
+      color: #b26a00;
+      border: 1px solid #ffd8a8;
+    }
+
+    .req-badge.req-approved {
+      background: #e8f7ee;
+      color: #1e7a43;
+      border: 1px solid #bfe7cf;
+    }
+
+    .req-badge.req-rejected {
+      background: #fbe9ea;
+      color: #ab2f3a;
+      border: 1px solid #f5b8bb;
+    }
+
+    .pay-btn {
+      background: #1e7a43;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pay-btn:hover { background: #165e33; }
   </style>
 </head>
 <body>
@@ -176,7 +222,26 @@
         .replace(/'/g, "&#39;");
     }
 
-    function renderOrders(orders) {
+    function renderRequestBadge(order, reqMap) {
+      const req = reqMap.get(String(order.agent_id ?? ""));
+      if (!req) return "";
+      const agent = order.Agents || {};
+      if (req.status === "pending") {
+        return `<div class="req-status"><span class="req-badge req-pending">Awaiting Approval</span></div>`;
+      }
+      if (req.status === "approved") {
+        const checkoutHref = "checkout.html?id=" + encodeURIComponent(String(order.agent_id ?? "")) +
+          "&name=" + encodeURIComponent(agent.name || "") +
+          "&price=" + encodeURIComponent(String(order.amount ?? ""));
+        return `<div class="req-status"><span class="req-badge req-approved">Approved -</span><a class="pay-btn" href="${checkoutHref}">Pay Now</a></div>`;
+      }
+      if (req.status === "rejected") {
+        return `<div class="req-status"><span class="req-badge req-rejected">Request Rejected</span></div>`;
+      }
+      return "";
+    }
+
+    function renderOrders(orders, reqMap) {
       if (!orders || orders.length === 0) {
         listEl.innerHTML = '<div class="empty">No orders yet</div>';
         return;
@@ -189,12 +254,14 @@
         const date = escapeHtml(formatDate(order.created_at));
         const status = String(order.status || "pending").toLowerCase();
         const agentId = encodeURIComponent(String(order.agent_id ?? ""));
+        const reqBadge = renderRequestBadge(order, reqMap);
 
         return `
           <article class="card">
             <div class="left">
               <div class="agent-name">${name}</div>
               <div class="meta">$${amount} · ${date}</div>
+              ${reqBadge}
             </div>
             <div class="right">
               <span class="status ${statusClass(status)}">${escapeHtml(status)}</span>
@@ -205,18 +272,31 @@
       }).join("");
     }
 
+    async function loadRequests(userId) {
+      const { data } = await supabaseClient
+        .from("requests")
+        .select("agent_id, status")
+        .eq("client_id", userId);
+      const map = new Map();
+      (data || []).forEach((r) => map.set(String(r.agent_id), r));
+      return map;
+    }
+
     async function loadOrders(user) {
-      const { data, error } = await supabaseClient
-        .from("orders")
-        .select("*, Agents(name, description)")
-        .eq("buyer_id", user.id)
-        .order("created_at", { ascending: false });
+      const [{ data, error }, reqMap] = await Promise.all([
+        supabaseClient
+          .from("orders")
+          .select("*, Agents(name, description)")
+          .eq("buyer_id", user.id)
+          .order("created_at", { ascending: false }),
+        loadRequests(user.id),
+      ]);
 
       if (error) {
         listEl.innerHTML = '<div class="empty">Failed to load orders</div>';
         return;
       }
-      renderOrders(data || []);
+      renderOrders(data || [], reqMap);
     }
 
     async function guardAndLoad() {

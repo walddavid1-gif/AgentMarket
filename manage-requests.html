@@ -199,6 +199,17 @@
       margin-bottom: 16px;
       font-size: 0.94rem;
     }
+
+    .success-banner {
+      background: var(--approved-bg);
+      color: var(--approved-text);
+      border: 1px solid var(--approved-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -206,6 +217,7 @@
     <h1 class="title">Incoming requests</h1>
     <p class="subtitle">Review hire requests for your agents. Approve to let clients pay, or reject to decline.</p>
     <div id="loadError" class="error" style="display: none;" role="alert"></div>
+    <div id="successBanner" class="success-banner" style="display: none;" role="status"></div>
     <div id="list" class="list">
       <div class="empty">Loading…</div>
     </div>
@@ -368,15 +380,10 @@
 
       if (clientId) {
         if (isApprove) {
-          const checkoutUrl = btn.getAttribute("data-checkout-url") || "";
-          const payLine = checkoutUrl
-            ? " Pay here: " + checkoutUrl
-            : "";
           await supabaseClient.from("notifications").insert({
             user_id: clientId,
             title: "Request Approved!",
-            message:
-              "Your request has been approved. You can now proceed to payment." + payLine
+            message: "Your request was approved. Go to My Orders to pay."
           });
         } else {
           await supabaseClient.from("notifications").insert({
@@ -384,6 +391,15 @@
             title: "Request Rejected",
             message: "Your request was not accepted by the agent owner."
           });
+        }
+      }
+
+      if (isApprove) {
+        const banner = document.getElementById("successBanner");
+        if (banner) {
+          banner.textContent = "Request approved!";
+          banner.style.display = "block";
+          setTimeout(function () { banner.style.display = "none"; }, 3000);
         }
       }
 

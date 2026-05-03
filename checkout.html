@@ -242,16 +242,22 @@
           alert("שגיאה בשמירת הזמנה: " + orderError.message);
           return;
         }
+        await supabaseClient
+          .from("requests")
+          .update({ status: "completed" })
+          .eq("agent_id", agentId)
+          .eq("client_id", authData.user.id);
         const { data: agentData } = await supabaseClient
           .from("Agents")
           .select("user_id,name")
           .eq("id", agentId)
           .maybeSingle();
+        const agentName = agentData?.name || decodedName || "Agent";
         if (agentData?.user_id) {
           await supabaseClient.from("notifications").insert({
             user_id: agentData.user_id,
-            title: "New Order!",
-            message: "Someone hired your agent: " + (agentData.name || decodedName || "Agent")
+            title: "Payment Received!",
+            message: "A client paid for your agent: " + agentName
           });
         }
         const url =
