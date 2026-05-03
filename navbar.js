@@ -119,6 +119,7 @@
       '<a href="dashboard.html">מרקטפלייס</a>' +
       '<a href="add-agent.html">הוסף סוכן</a>' +
       '<a href="profile.html">Profile</a>' +
+      '<a href="manage-requests.html">Requests</a>' +
       '<a href="orders.html">My Orders</a>' +
       "</div>" +
       "</div>" +

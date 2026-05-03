@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMarket — Manage requests</title>
+  <style>
+    :root {
+      --brand: #185FA5;
+      --brand-dark: #11497f;
+      --bg: #f5f8fc;
+      --card: #ffffff;
+      --border: #d8e2ee;
+      --text: #1b1f24;
+      --muted: #5f6b7a;
+      --pending-bg: #fff4e6;
+      --pending-text: #b26a00;
+      --pending-border: #ffd39a;
+      --approved-bg: #e8f7ee;
+      --approved-text: #1e7a43;
+      --approved-border: #bfe7cf;
+      --rejected-bg: #fbe9ea;
+      --rejected-text: #ab2f3a;
+      --rejected-border: #f4c2c7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #edf5ff 0%, var(--bg) 50%, #eef3f9 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 86px 16px 32px;
+    }
+
+    .title {
+      font-size: 1.9rem;
+      color: var(--brand);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-size: 0.97rem;
+      line-height: 1.45;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(20, 62, 103, 0.06);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .agent-name {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 5px 12px;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .status.pending {
+      background: var(--pending-bg);
+      color: var(--pending-text);
+      border: 1px solid var(--pending-border);
+    }
+
+    .status.approved {
+      background: var(--approved-bg);
+      color: var(--approved-text);
+      border: 1px solid var(--approved-border);
+    }
+
+    .status.rejected {
+      background: var(--rejected-bg);
+      color: var(--rejected-text);
+      border: 1px solid var(--rejected-border);
+    }
+
+    .block {
+      margin-bottom: 12px;
+    }
+
+    .block:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--brand);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .value.muted-empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-approve {
+      background: var(--approved-text);
+      color: #fff;
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background: #167a38;
+    }
+
+    .btn-reject {
+      background: #fff;
+      color: var(--rejected-text);
+      border: 2px solid var(--rejected-text);
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      background: var(--rejected-bg);
+    }
+
+    .empty {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.98rem;
+    }
+
+    .error {
+      background: var(--rejected-bg);
+      color: var(--rejected-text);
+      border: 1px solid var(--rejected-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.94rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="title">Incoming requests</h1>
+    <p class="subtitle">Review hire requests for your agents. Approve to let clients pay, or reject to decline.</p>
+    <div id="loadError" class="error" style="display: none;" role="alert"></div>
+    <div id="list" class="list">
+      <div class="empty">Loading…</div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const FALLBACK_SUPABASE_URL = "https://ugvmystwnfrglzaxpput.supabase.co";
+    const FALLBACK_SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndm15c3R3bmZyZ2x6YXhwcHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDExODIsImV4cCI6MjA5MDYxNzE4Mn0.PtWBhJO3G5lQ3NQTfihHmVIIoK1AAaX9MTDyqP_YnSA";
+
+    async function loadSupabaseConfig() {
+      try {
+        const [urlRes, keyRes] = await Promise.all([
+          fetch("API%20URL.txt"),
+          fetch("Anon%20API.txt")
+        ]);
+        if (urlRes.ok && keyRes.ok) {
+          const url = (await urlRes.text()).trim();
+          const key = (await keyRes.text()).trim();
+          if (url && key) return { url, key };
+        }
+      } catch (_) {}
+      return { url: FALLBACK_SUPABASE_URL, key: FALLBACK_SUPABASE_ANON_KEY };
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function statusClass(status) {
+      const s = String(status || "pending").toLowerCase();
+      if (s === "approved") return "approved";
+      if (s === "rejected") return "rejected";
+      return "pending";
+    }
+
+    function formatDeadline(d) {
+      if (d == null || d === "") return "—";
+      const str = String(d);
+      const date = new Date(str.length <= 10 ? str + "T12:00:00" : str);
+      if (Number.isNaN(date.getTime())) return escapeHtml(str);
+      return escapeHtml(date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }));
+    }
+
+    function buildCheckoutUrl(agentId, agentName, price) {
+      const q = new URLSearchParams();
+      q.set("agent_id", String(agentId));
+      q.set("name", String(agentName || ""));
+      q.set("price", String(price ?? ""));
+      return "checkout.html?" + q.toString();
+    }
+
+    function renderRequests(container, rows, supabaseClient) {
+      if (!rows || rows.length === 0) {
+        container.innerHTML = '<div class="empty">No requests yet</div>';
+        return;
+      }
+
+      container.innerHTML = rows
+        .map(function (row) {
+          const agent = row.Agents || {};
+          const agentName = agent.name || "Agent";
+          const rid = escapeHtml(row.id);
+          const st = statusClass(row.status);
+          const pending = st === "pending";
+          const reqText = escapeHtml(row.description || "");
+          const deadline = formatDeadline(row.deadline);
+          const reqs = (row.requirements && String(row.requirements).trim())
+            ? escapeHtml(row.requirements)
+            : null;
+          const checkoutUrl = buildCheckoutUrl(row.agent_id, agentName, agent.price);
+          const checkoutUrlEscaped = escapeHtml(checkoutUrl);
+
+          const actions = pending
+            ? '<div class="actions">' +
+              '<button type="button" class="btn btn-approve" data-action="approve" data-id="' +
+              rid +
+              '" data-client-id="' +
+              escapeHtml(row.client_id) +
+              '" data-checkout-url="' +
+              checkoutUrlEscaped +
+              '">Approve</button>' +
+              '<button type="button" class="btn btn-reject" data-action="reject" data-id="' +
+              rid +
+              '" data-client-id="' +
+              escapeHtml(row.client_id) +
+              '">Reject</button>' +
+              "</div>"
+            : "";
+
+          return (
+            '<article class="card" data-request-id="' +
+            rid +
+            '">' +
+            '<div class="card-top">' +
+            '<div class="agent-name">' +
+            escapeHtml(agentName) +
+            "</div>" +
+            '<span class="status ' +
+            st +
+            '">' +
+            escapeHtml(String(row.status || "pending")) +
+            "</span>" +
+            "</div>" +
+            '<div class="block"><div class="label">What they need</div><div class="value">' +
+            (reqText || '<span class="value muted-empty">—</span>') +
+            "</div></div>" +
+            '<div class="block"><div class="label">Deadline</div><div class="value">' +
+            deadline +
+            "</div></div>" +
+            '<div class="block"><div class="label">Special requirements</div><div class="value">' +
+            (reqs || '<span class="value muted-empty">None</span>') +
+            "</div></div>" +
+            actions +
+            "</article>"
+          );
+        })
+        .join("");
+
+      container.querySelectorAll('[data-action="approve"]').forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          return onApproveReject(supabaseClient, btn, "approved");
+        });
+      });
+      container.querySelectorAll('[data-action="reject"]').forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          return onApproveReject(supabaseClient, btn, "rejected");
+        });
+      });
+    }
+
+    async function onApproveReject(supabaseClient, btn, nextStatus) {
+      const id = btn.getAttribute("data-id");
+      const clientId = btn.getAttribute("data-client-id");
+      const card = btn.closest(".card");
+      const buttons = card ? card.querySelectorAll(".actions .btn") : [];
+      buttons.forEach(function (b) {
+        b.disabled = true;
+      });
+
+      const isApprove = nextStatus === "approved";
+      const { error: upErr } = await supabaseClient
+        .from("requests")
+        .update({ status: nextStatus })
+        .eq("id", id);
+
+      if (upErr) {
+        buttons.forEach(function (b) {
+          b.disabled = false;
+        });
+        alert(upErr.message || "Update failed");
+        return;
+      }
+
+      if (clientId) {
+        if (isApprove) {
+          const checkoutUrl = btn.getAttribute("data-checkout-url") || "";
+          const payLine = checkoutUrl
+            ? " Pay here: " + checkoutUrl
+            : "";
+          await supabaseClient.from("notifications").insert({
+            user_id: clientId,
+            title: "Request Approved!",
+            message:
+              "Your request has been approved. You can now proceed to payment." + payLine
+          });
+        } else {
+          await supabaseClient.from("notifications").insert({
+            user_id: clientId,
+            title: "Request Rejected",
+            message: "Your request was not accepted by the agent owner."
+          });
+        }
+      }
+
+      await loadRequests(supabaseClient);
+    }
+
+    async function loadRequests(supabaseClient) {
+      const listEl = document.getElementById("list");
+      const errEl = document.getElementById("loadError");
+      errEl.style.display = "none";
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const { data: myAgents, error: agentsErr } = await supabaseClient
+        .from("Agents")
+        .select("id")
+        .eq("user_id", user.id);
+
+      if (agentsErr) {
+        errEl.textContent = agentsErr.message || "Could not load your agents.";
+        errEl.style.display = "block";
+        listEl.innerHTML = "";
+        return;
+      }
+
+      const agentIds = (myAgents || []).map(function (a) {
+        return a.id;
+      });
+      if (agentIds.length === 0) {
+        listEl.innerHTML = '<div class="empty">No requests yet</div>';
+        return;
+      }
+
+      const { data: requests, error: reqErr } = await supabaseClient
+        .from("requests")
+        .select("id, agent_id, client_id, description, deadline, requirements, status, created_at, Agents(name, price)")
+        .in("agent_id", agentIds)
+        .order("created_at", { ascending: false });
+
+      if (reqErr) {
+        errEl.textContent = reqErr.message || "Could not load requests.";
+        errEl.style.display = "block";
+        listEl.innerHTML = "";
+        return;
+      }
+
+      renderRequests(listEl, requests || [], supabaseClient);
+    }
+
+    (async function init() {
+      const cfg = await loadSupabaseConfig();
+      window.AgentMarketSupabase = window.supabase.createClient(cfg.url, cfg.key);
+      const supabaseClient = window.AgentMarketSupabase;
+
+      function guardSession(session) {
+        if (!session || !session.user) {
+          window.location.replace("login.html");
+        }
+      }
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      guardSession(session);
+
+      supabaseClient.auth.onAuthStateChange(function (_ev, nextSession) {
+        guardSession(nextSession);
+      });
+
+      await loadRequests(supabaseClient);
+    })();
+  </script>
+  <script src="navbar.js"></script>
+</body>
+</html>
